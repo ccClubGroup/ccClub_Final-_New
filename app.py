@@ -213,7 +213,7 @@ codetest = [
 def handle_message(event):
     if event.message.text == "輸出篩選結果":
         columns = []
-        for restaurant in stores: #測試:如要測試地圖功能，stores要換成codetest
+        for restaurant in codetest: #測試:如要測試地圖功能，stores要換成codetest
             column = CarouselColumn(
                 title=restaurant['name'],
                 text=f"地址: {restaurant['address']}\n評分: {restaurant['rate']}顆星\n距離: {restaurant['distance']}公里",
@@ -234,7 +234,7 @@ def handle_message(event):
         handle_location_request(event)
 
 def handle_location_request(event):
-    for restaurant in stores:     #測試:如要測試地圖功能，stores要換成codetest
+    for restaurant in codetest:     #測試:如要測試地圖功能，stores要換成codetest
         if event.message.text == f"{restaurant['name']}位置":
             location_message = LocationSendMessage(
                 title=restaurant['name'],
