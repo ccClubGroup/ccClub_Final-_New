@@ -182,68 +182,6 @@ def welcome(event):
 
 ##################################################
 
-#以下是返回地圖功能
-#篩選功能好像無法運作，如要測試地圖功能可先使用codetest的資料測試(註解的地方要換成codetest)
-
-codetest = [
-    {
-        "name": "餐廳A",
-        "address": "台北市中正區忠孝東路一段1號",
-        "rate": 4.5,
-        "distance": 1.25,
-        "location": "25.045158,121.515739" 
-    },
-    {
-        "name": "餐廳B",
-        "address": "台北市大安區復興南路一段1號",
-        "rate": 4.2,
-        "distance": 2.5,
-        "location": "25.033963,121.543303"  
-    },
-    {
-        "name": "餐廳C",
-        "address": "台北市信義區松高路12號",
-        "rate": 4.7,
-        "distance": 3.1,
-        "location": "25.034413,121.566504" 
-    }
-]
-
-@handler.add(MessageEvent, message=TextMessage)
-def handle_message(event):
-    if event.message.text == "輸出篩選結果":
-        columns = []
-        for restaurant in codetest: #測試:如要測試地圖功能，stores要換成codetest
-            column = CarouselColumn(
-                title=restaurant['name'],
-                text=f"地址: {restaurant['address']}\n評分: {restaurant['rate']}顆星\n距離: {restaurant['distance']}公里",
-                actions=[
-                    MessageAction(label='地圖搜尋', text=f"{restaurant['name']}位置")
-                ]
-            )
-            columns.append(column)
-        
-        carousel_template = CarouselTemplate(columns=columns)
-        template_message = TemplateSendMessage(
-            alt_text='店家資訊',
-            template=carousel_template
-        )
-        
-        line_bot_api.reply_message(event.reply_token, template_message)
-    else:
-        handle_location_request(event)
-
-def handle_location_request(event):
-    for restaurant in codetest:     #測試:如要測試地圖功能，stores要換成codetest
-        if event.message.text == f"{restaurant['name']}位置":
-            location_message = LocationSendMessage(
-                title=restaurant['name'],
-                address=restaurant['address'],
-                latitude=float(restaurant['location'].split(',')[0]),
-                longitude=float(restaurant['location'].split(',')[1])
-            )
-            line_bot_api.reply_message(event.reply_token, location_message)
-            break
 
 import os
 if __name__ == "__main__":
