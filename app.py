@@ -94,7 +94,7 @@ def handle_message(event):
         user_filter_sequence[user_id] = [] # 初始化篩選標準順序
         user_detailed_filter[user_id] = {"sequence": [], "step": 0, "criteria": {}} # 初始化詳細篩選標準
         send_quick_reply(reply_token, "請選擇第一個篩選標準：", filter_options) # 發送篩選標準的選項
-    elif msg in filter_options and user_id in user_filter_sequence: # 如果用戶輸出的訊息在篩選標準中，且ID存在於字典中
+    elif (msg in filter_options) and (user_id in user_filter_sequence): # 如果用戶輸出的訊息在篩選標準中，且ID存在於字典中
         user_filter_sequence[user_id].append(msg) # 添加用戶選擇的篩選標準
         user_detailed_filter[user_id]["sequence"].append(msg)  # 同步詳細篩選標準
         remaining_options = [x for x in filter_options if x not in user_filter_sequence[user_id]] # 更新剩餘可供篩選標準的選擇
