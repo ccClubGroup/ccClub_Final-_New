@@ -1,4 +1,5 @@
 import math, json, time, requests
+from geopy.distance import geodesic
 
 #============================================================================================
 # 爬取中央氣象局的地震資料
@@ -34,21 +35,17 @@ def earth_quake():
 #============================================================================================
 
 # 計算兩個地理坐標之間的球面距離，即兩點間的最短距離
-# 參數 lon 表示 longitude 經度， lat 表示 latitude 緯度
-def haversine(lon1, lat1, lon2, lat2):
-    lon1, lat1, lon2, lat2 = map(math.radians, [lon1, lat1, lon2, lat2]) # 將十進制度數轉為弧度
-    # Haversine公式
-    dlon = lon2 - lon1
-    dlat = lat2 - lat1
-    a = math.sin(dlat/2)**2 + math.cos(lat1) * math.cos(lat2) * math.sin(dlon/2)**2
-    c = 2 * math.asin(math.sqrt(a))
-    r = 6371  # 地球平均半徑（公里）
-    return c * r
+
+# 計算兩個座標的距離
+# google api中 lat 表示 latitude 緯度，lng 表示 longitude 經度
+def calculate_distance(lat1, lng1, lat2, lng2):
+    return int(geodesic((lat1, lng1), (lat2, lng2)).meters)
+
 #============================================================================================
 
 # 爬取即時天氣、氣象預報和空氣品質的資料
 # 參數為輸入地址 address
-def weather(address, longitude, latitude):
+def weather(address, lat, lng):
     result = {}
     # 氣象局 api code
     code = 'CWA-EAC9F0DE-E706-4B6B-8CB5-9D502C52392C'
@@ -137,9 +134,9 @@ def weather(address, longitude, latitude):
         for item in records: # 對每個觀測站進行距離的計算，並紀錄最短距離的觀測站
             county = item['county'] # 縣市名稱
             sitename = item['sitename'] # 測站名稱
-            station_lon = float(item['longitude']) # 觀測站經度
+            station_lng = float(item['longitude']) # 觀測站經度
             station_lat = float(item['latitude']) # 觀測站緯度
-            distance = haversine(longitude, latitude, station_lon, station_lat) # 代入計算距離之函式
+            distance = calculate_distance(lat, lng, station_lat, station_lng) # 代入計算距離之函式
             if distance < min_distance: # 如果小於最短距離，更新最近的觀測站的資料
                 min_distance = distance
                 nearest_station = item
@@ -160,22 +157,23 @@ from linebot.models import *
 
 # 給用戶一個選擇功能選項
 def service_choice_confirm():
-    message = TemplateSendMessage(
-        alt_text='請選擇服務',
-        template=ConfirmTemplate(
-            text="您需要什麼服務？",
+    buttons_template_message = TemplateSendMessage(
+        alt_text='選擇服務',
+        template=ButtonsTemplate(
+            title='已經想好要吃什麼了嗎？',
+            text='請選擇以下服務',
             actions=[
-                PostbackTemplateAction(
-                    label="選擇障礙救星",
-                    text="選擇障礙救星",
-                    data="action=help_choose"
+                MessageAction(
+                    label='選擇障礙救星',
+                    text='選擇障礙救星'
                 ),
-                PostbackTemplateAction(
-                    label="已決定要吃什麼",
-                    text="已決定要吃什麼",
-                    data="action=decided_eat"
+                MessageAction(
+                    label='已決定要吃什麼',
+                    text='已決定要吃什麼'
                 )
             ]
         )
     )
-    return message
+    return buttons_template_message
+
+
