@@ -51,7 +51,6 @@ def callback():
         abort(400)
     return 'OK'
 
-
 user_filter_sequence = {} # 儲存用戶篩選標準的順序
 user_detailed_filter = {} # 儲存用戶的詳細篩選標準
 filter_options = ["距離", "星數", "評論數", "價格"] # 定義可供選擇的篩選標準
@@ -69,9 +68,9 @@ def handle_message(event):
     msg = event.message.text
     reply_token = event.reply_token
     user_id = event.source.user_id
-    user_location = locations[user_id]
 
     if msg == "關鍵字確認完成，開始篩選！": # 如果用戶訊息為 "關鍵字確認完成，開始篩選！"
+        user_location = locations[user_id] # 用戶定位位置
         user_filter_sequence[user_id] = [] # 初始化篩選標準順序
         user_detailed_filter[user_id] = {"sequence": [], "step": 0, "criteria": {}} # 初始化詳細篩選標準
         send_quick_reply(reply_token, "請選擇第一個篩選標準：", filter_options) # 發送篩選標準的選項
@@ -111,7 +110,6 @@ def handle_message(event):
         text_message = TextSendMessage(text=reply[0])  # 建立文字訊息
         line_bot_api.reply_message(event.reply_token, text_message)  # 回覆地震資訊的文字訊息
         line_bot_api.push_message(event.source.user_id, ImageSendMessage(original_content_url=reply[1], preview_image_url=reply[1]))  # 地震資訊的圖片訊息
-
 
 
     # elif '選擇障礙救星' in msg:
