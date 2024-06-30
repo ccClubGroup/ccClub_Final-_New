@@ -231,29 +231,38 @@ def create_flex_message_contents(restaurants):
     for restaurant in restaurants:
         bubble = {
             "type": "bubble",
-            "size": "micro",
+            "size": "hecto",
             "hero": {
                 "type": "image",
                 "url": restaurant["image_url"],
                 "size": "full",
                 "aspectMode": "cover",
                 "aspectRatio": "320:213"
-            },
+            },  
             "body": {
                 "type": "box",
                 "layout": "vertical",
+                "margin": "lg",
+                "spacing": "sm",
                 "contents": [
-                    {
+                   {
                         "type": "text",
                         "text": restaurant["name"],
                         "weight": "bold",
-                        "size": "sm",
+                        "size": "xl",
+                        "maxLines":2,
                         "wrap": True
                     },
                     {
                         "type": "box",
                         "layout": "baseline",
+                        "margin": "md",
                         "contents": [
+                            {
+                                "type": "icon",
+                                "size": "sm",
+                                "url": "https://developers-resource.landpress.line.me/fx/img/review_gold_star_28.png"
+                            },
                             {
                                 "type": "text",
                                 "text": str(restaurant['rating']),
@@ -297,21 +306,32 @@ def create_flex_message_contents(restaurants):
                         "color": "#8c8c8c",
                         "margin": "md",
                         "wrap": True
-                    },
-                    {
-                        "type": "button",
-                        "action": {
-                            "type": "uri",
-                            "label": "查看地圖",
-                            "uri": restaurant["google_maps_url"]
-                        },
-                        "style": "link"
                     }
                 ],
                 "spacing": "sm",
-                "paddingAll": "13px"
+                "paddingAll": "13px",
+                "height":"180px"
+            }, 
+                "footer": {
+                "type": "box",
+                "layout": "vertical",
+                "spacing": "sm",
+                "contents": [
+                    {
+                        "type": "button",
+                        "action": {
+                        "type": "uri",
+                        "label": "查看地圖",
+                        "uri": restaurant["google_maps_url"]
+                    },
+                    "style": "primary",
+                    "color": "#A35E47"
+                    }
+                ],
+                "flex": 0,
+                "paddingBottom": "15px",
+                "paddingTop": "8px"
             }
-        }
+        }           
         contents.append(bubble)
     return contents
-
