@@ -128,8 +128,8 @@ def handle_message(event):
     elif '地震' in msg:
         reply = earth_quake()
         text_message = TextSendMessage(text=reply[0])  # 建立文字訊息
-        line_bot_api.reply_message(event.reply_token, text_message)  # 回覆地震資訊的文字訊息
-        line_bot_api.push_message(event.source.user_id, ImageSendMessage(original_content_url=reply[1], preview_image_url=reply[1]))  # 地震資訊的圖片訊息
+        line_bot_api.reply_message(reply_token, text_message)  # 回覆地震資訊的文字訊息
+        line_bot_api.push_message(user_id, ImageSendMessage(original_content_url=reply[1], preview_image_url=reply[1]))  # 地震資訊的圖片訊息
     else:
         message = "嗨～記得先點選下方選單的定位唷！"
         line_bot_api.reply_message(event.reply_token, TextSendMessage(text=message))
