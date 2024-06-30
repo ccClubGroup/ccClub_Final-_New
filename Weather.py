@@ -170,6 +170,10 @@ def service_choice_confirm():
                 MessageAction(
                     label='已決定要吃什麼',
                     text='已決定要吃什麼'
+                ),
+                MessageAction(
+                    label='其他:查看地震資訊',
+                    text='地震'
                 )
             ]
         )
