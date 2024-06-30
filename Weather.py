@@ -1,6 +1,6 @@
 import math, json, time, requests
 from geopy.distance import geodesic
-
+from linebot.models import *
 #============================================================================================
 # 爬取中央氣象局的地震資料
 def earth_quake():
@@ -153,7 +153,7 @@ def weather(address, lat, lng):
     return output
 #============================================================================================
 
-from linebot.models import *
+
 
 # 給用戶一個選擇功能選項
 def service_choice_confirm():

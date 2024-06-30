@@ -1,9 +1,10 @@
+from flask import Flask, request, abort
+from linebot import LineBotApi, WebhookHandler
+from linebot.exceptions import InvalidSignatureError
 from linebot.models import *
 import requests
-import random
-import os
+import math, json, time, random, os
 from geopy.distance import geodesic
-from linebot import (LineBotApi, WebhookHandler)
 
 static_tmp_path = os.path.join(os.path.dirname(__file__), 'static', 'tmp')
 # Channel Access Token
@@ -13,23 +14,35 @@ handler = WebhookHandler(os.getenv('CHANNEL_SECRET'))
 # Google Maps API Key
 GOOGLE_MAPS_API_KEY = 'AIzaSyDCM_Xvw4Jd2ytCRwWcqxhzMERJwFQjvBw'
 
-def choose():
-    food_types = {
-    "中式料理": ["小籠包", "燒賣", "雞肉飯", "北京烤鴨", "炒麵"],
-    "日式料理": ["壽司", "拉麵", "天婦羅", "丼飯", "烤串"],
-    "韓式料理": ["石鍋拌飯", "韓式炸雞", "泡菜鍋", "烤肉", "辣炒年糕"],
-    "西式料理": ["披薩", "漢堡", "義大利麵", "牛排", "沙拉"],
-    "泰式料理": ["冬蔭功", "綠咖哩", "泰式炒河粉", "紅咖哩雞", "檸檬魚"],
-    "印度料理": ["咖哩雞", "羊肉手抓飯", "印度烤餅（Naan）", "黃豆咖哩", "辣椒雞"],
-    "越南料理": ["越南河粉", "春捲", "越式法國麵包", "魚露炒牛肉", "越南煎餅"],
-    "速食/快餐": ["炸雞", "薯條", "熱狗", "三明治", "捲餅"],
-    "台灣小吃": ["滷肉飯", "蚵仔煎", "鹽酥雞", "大腸包小腸", "牛肉麵", "豆花", "鹽水雞", "雞排", "臭豆腐", "車輪餅"]
+
+
+# 選擇障礙救星
+def choose_food(food_type):
+    types = {
+        "正餐": [
+            "牛肉麵", "火鍋", "燒烤", "日式定食", "粵菜餐廳", "泰式料理", "義大利麵",
+            "韓式燒肉", "印度咖哩", "台式便當", "排骨飯", "三杯雞", "滷肉飯", "雞腿飯",
+            "便當店", "焢肉飯", "烤鴨", "蚵仔煎", "炒飯", "炒麵", "魯肉飯", "雞肉飯",
+            "蒸餃", "水餃", "牛排館", "燒臘飯", "雞排飯", "鱔魚意麵", "豬腳飯", "魚湯",
+            "炒青菜", "蔥爆牛肉", "砂鍋粥", "紅燒魚", "烤魚", "香酥鴨", "豆腐煲", "熱炒"
+        ],
+        "小吃": [
+            "雞排", "滷味", "鹽酥雞", "蚵仔煎", "車輪餅", "臭豆腐", "章魚小丸子", "春捲",
+            "水煎包", "煎餃", "雞蛋仔", "燒賣", "豆花", "燒仙草", "炸湯圓", "肉圓", "紅豆餅",
+            "胡椒餅", "蛋餅", "麻糬", "肉鬆餅", "花生捲冰淇淋", "涼麵", "刨冰",
+            "米糕", "四神湯", "魚丸湯", "甜不辣", "大腸包小腸", "雞肉飯", "鴨血糕", "魷魚羹",
+            "黑輪", "燒餅油條", "鹽水雞", "炸豆腐", "關東煮"
+        ],
+        "飲料": [
+            "珍珠奶茶", "紅茶拿鐵", "咖啡", "果汁", "冰沙", "奶昔", "椰子水", "檸檬紅茶", "綠豆沙"
+        ],
+        "點心": [
+            "蛋糕店", "餅乾", "巧克力", "糖果", "果凍", "甜甜圈", "冰淇淋", "馬卡龍",
+            "鬆餅", "泡芙", "奶酥", "芝士蛋糕", "布朗尼", "水果塔", "千層蛋糕"
+        ]
     }
-    randomKey = random.choice(list(food_types.keys()))
-    randomValue = random.choice(food_types[randomKey])
+    randomValue = random.choice(types[food_type])
     return randomValue
-
-
 
 # 建立LINE中發送快速回覆的函數
 def send_quick_reply(reply_token, text, options, additional_messages=None):
@@ -80,14 +93,7 @@ def getRestaurants(reply_token, user_location, keyword, criteria, price_criteria
 
 # 排序餐廳
 def sort_restaurants(restaurants, criteria, user_location, price_criteria, basic_filter=True):
-
     open_restaurants = [x for x in restaurants if x.get('opening_hours', {}).get('open_now', False)] # JSON檔中的營業與否會顯示在 opening_hours 中的 open_now
-    ###########################
-    # 測試用
-    # print('=========================')
-    # print(criteria)
-    ###########################
-
     def sort_key(restaurant, criteria, user_location):
         distance = calculate_distance(user_location['lat'], user_location['lng'], restaurant['geometry']['location']['lat'], restaurant['geometry']['location']['lng'])
         rating = restaurant.get('rating', 0)
@@ -120,14 +126,6 @@ def sort_restaurants(restaurants, criteria, user_location, price_criteria, basic
         if "reviews" in criteria:
             min_reviews, max_reviews = criteria["reviews"]
 
-        # 測試用
-        # print('=========================')
-        # # 提取 price_level
-        # for restaurant in open_restaurants:
-        #     name = restaurant.get('name', 'Unknown')
-        #     price_level = restaurant.get('price_level', 'N/A')
-        #     print(f"open_restaurants: {name}, Price Level: {price_level}")
-
         restaurants = []
         for x in open_restaurants:
             location = x.get('geometry', {}).get('location', {})
@@ -140,17 +138,10 @@ def sort_restaurants(restaurants, criteria, user_location, price_criteria, basic
             if "reviews" in criteria and not (min_reviews <= x.get('user_ratings_total', 0) <= max_reviews):
                 continue
             restaurants.append(x)
-        # # 測試用
-        # print('restaurants=========================')
-        # # 提取 price_level
-        # for restaurant in restaurants:
-        #     name = restaurant.get('name', 'Unknown')
-        #     price_level = restaurant.get('price_level', 'N/A')
-        #     print(f"Restaurant: {name}, Price Level: {price_level}")
-
         # 排序
         sorted_restaurants = sorted(restaurants, key=lambda x: sort_key(x, criteria, user_location))
         return sorted_restaurants
+
 
 # 發送詳細篩選訊息
 def send_filter(reply_token, user_detailed_filter):
@@ -167,62 +158,32 @@ def send_filter(reply_token, user_detailed_filter):
         elif criteria == "價格":
             send_quick_reply(reply_token, "請選擇價格範圍：", ["$", "$$", "$$$", "$$$$"])
 
+
 # 處理詳細篩選訊息
 def process_filter(reply_token, user_location, keyword, user_detailed_filter, msg, price_criteria):
     step = user_detailed_filter["step"]
     sequence = user_detailed_filter["sequence"]
-    # ######################
-    # # 測試用
-    # print(user_detailed_filter)
-    # ######################
     if step < len(sequence):
         criteria = sequence[step]
         if criteria == "距離":
             user_detailed_filter["criteria"]["distance"] = msg
-            # ######################
-            # # 測試用
-            # print('距離')
-            # print(user_detailed_filter)
-            # ######################
         elif criteria == "星數":
             min_rating, max_rating = map(float, msg.split('~'))
             user_detailed_filter["criteria"]["rating"] = (min_rating, max_rating)
-            # ######################
-            # # 測試用
-            # print('星數')
-            # print(user_detailed_filter)
-            # ######################
         elif criteria == "評論數":
             if msg == "600條以上":
                 user_detailed_filter["criteria"]["reviews"] = (600, float('inf'))
-                # ######################
-                # # 測試用
-                # print('評論數')
-                # print(user_detailed_filter)
-                # ######################
             else:
                 min_reviews, max_reviews = map(int, msg.replace("條", "").split('~'))
                 user_detailed_filter["criteria"]["reviews"] = (min_reviews, max_reviews)
-                # ######################
-                # # 測試用
-                # print('評論數')
-                # print(user_detailed_filter)
-                # ######################
         elif criteria == "價格":
             price_dict = {"$":'1', "$$":'2', "$$$":'3', "$$$$":'4'}
             price_criteria = price_dict[msg]
-            # ######################
-            # # 測試用
-            # print('價格')
-            # print(user_detailed_filter)
-            # ######################
         user_detailed_filter["step"] += 1
-
         if user_detailed_filter["step"] < len(sequence):
             send_filter(reply_token, user_detailed_filter)
         else:
             getRestaurants(reply_token, user_location, keyword, user_detailed_filter, price_criteria, basic_filter=False)
-
 
 # 使用 Google Place API 爬取附近餐廳的 JSON 檔
 def nearby_search(location, keyword, radius):
@@ -256,6 +217,7 @@ def get_place_details(place_id):
     else:
         image_url = ""
     result['image_url'] = image_url
+
     return result
 
 # 計算兩個座標的距離
@@ -352,6 +314,4 @@ def create_flex_message_contents(restaurants):
         }
         contents.append(bubble)
     return contents
-
-
 
