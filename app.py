@@ -7,7 +7,6 @@ import math, json, time, random, os
 from geopy.distance import geodesic
 
 #======這裡是呼叫的檔案內容=====
-from Map import *
 from Restaurant import *
 from Weather import *
 #======這裡是呼叫的檔案內容=====
@@ -51,8 +50,8 @@ locations = {}
 user_keywords = {}  # 儲存用戶的關鍵字
 waiting_for_keyword = set()  # 用來儲存等待使用者輸入關鍵字的用戶 ID
 user_food_choice = {}  # 用戶選擇的食物類別
-#===========定義變數========================
 
+#===========定義變數========================
 # 處理訊息
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
@@ -128,8 +127,8 @@ def handle_message(event):
     elif '地震' in msg:
         reply = earth_quake()
         text_message = TextSendMessage(text=reply[0])  # 建立文字訊息
-        line_bot_api.reply_message(reply_token, text_message)  # 回覆地震資訊的文字訊息
-        line_bot_api.push_message(user_id, ImageSendMessage(original_content_url=reply[1], preview_image_url=reply[1]))  # 地震資訊的圖片訊息
+        line_bot_api.reply_message(event.reply_token, text_message)  # 回覆地震資訊的文字訊息
+        line_bot_api.push_message(event.source.user_id, ImageSendMessage(original_content_url=reply[1], preview_image_url=reply[1]))  # 地震資訊的圖片訊息
     else:
         message = "嗨～記得先點選下方選單的定位唷！"
         line_bot_api.reply_message(event.reply_token, TextSendMessage(text=message))
@@ -153,7 +152,6 @@ def handle_location_message(event):
     # 獲得服務選擇確認模板
     service_selection_message = service_choice_confirm() # 獲得服務選擇確認模板
     line_bot_api.reply_message(reply_token, [img_message, text_message, service_selection_message]) # 同時回覆雷達回波圖、天氣預報、服務選擇確認
-
 
 
 
