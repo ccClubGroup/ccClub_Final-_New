@@ -44,7 +44,7 @@ def callback():
 #===========定義變數========================
 user_filter_sequence = {} # 儲存用戶篩選標準的順序
 user_detailed_filter = {} # 儲存用戶的詳細篩選標準
-filter_options = ["距離", "星數", "評論數", "價格"] # 定義可供選擇的篩選標準
+filter_options = ["價格", "距離", "評論數", "星數"] # 定義可供選擇的篩選標準
 price_criteria = None
 # 用一個字典暫時儲存用戶的經緯度，key 是用戶ID，value 是經緯度的字典 ex:{'lat': 25.0330, 'lng': 121.5654}
 locations = {}
