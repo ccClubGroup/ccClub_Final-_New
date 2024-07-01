@@ -231,7 +231,7 @@ def create_flex_message_contents(restaurants):
     for restaurant in restaurants:
         bubble = {
             "type": "bubble",
-            "size": "hecto",
+            "size": "deca",
             "hero": {
                 "type": "image",
                 "url": restaurant["image_url"],
