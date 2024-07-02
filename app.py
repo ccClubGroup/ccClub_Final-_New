@@ -56,6 +56,7 @@ user_food_choice = {}  # 用戶選擇的食物類別
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     global price_criteria
+    global filter_options
 
     msg = event.message.text
     reply_token = event.reply_token
