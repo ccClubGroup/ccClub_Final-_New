@@ -124,7 +124,7 @@ def handle_message(event):
         send_filter(reply_token, user_detailed_filter[user_id]) # 發送篩選範圍的選項
     elif user_id in user_detailed_filter: # 接著根據篩選範圍的文字進行篩選
         process_filter(reply_token, locations[user_id], user_keywords[user_id], user_detailed_filter[user_id], msg, price_criteria)
-    elif '地震' in msg:
+    elif '地震！' in msg:
         reply = earth_quake()
         text_message = TextSendMessage(text=reply[0])  # 建立文字訊息
         line_bot_api.reply_message(event.reply_token, text_message)  # 回覆地震資訊的文字訊息
