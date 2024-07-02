@@ -73,6 +73,7 @@ def handle_message(event):
         del user_food_choice[user_id]
         user_filter_sequence[user_id] = [] # 初始化篩選標準順序
         user_detailed_filter[user_id] = {"sequence": [], "step": 0, "criteria": {}} # 初始化詳細篩選標準
+        price_criteria = None
         send_quick_reply(reply_token, "關鍵字確認完成，請選擇第一個篩選標準：", filter_options) # 發送篩選標準的選項
 
     elif (msg == "不接受") and (user_id in user_food_choice):
@@ -88,11 +89,13 @@ def handle_message(event):
         user_keywords[user_id] = keyword
         waiting_for_keyword.remove(user_id)
         user_filter_sequence[user_id] = [] # 初始化篩選標準順序
+        price_criteria = None
         user_detailed_filter[user_id] = {"sequence": [], "step": 0, "criteria": {}} # 初始化詳細篩選標準
         send_quick_reply(reply_token, "關鍵字確認完成，請選擇第一個篩選標準：", filter_options) # 發送篩選標準的選項
 
     elif msg == "關鍵字確認完成，開始篩選！": # 如果用戶訊息為 "關鍵字確認完成，開始篩選！"
         user_filter_sequence[user_id] = [] # 初始化篩選標準順序
+        price_criteria = None
         user_detailed_filter[user_id] = {"sequence": [], "step": 0, "criteria": {}} # 初始化詳細篩選標準
         send_quick_reply(reply_token, "請選擇第一個篩選標準：", filter_options) # 發送篩選標準的選項
     elif (msg in filter_options) and (user_id in user_filter_sequence): # 如果用戶輸出的訊息在篩選標準中，且ID存在於字典中
@@ -126,7 +129,7 @@ def handle_message(event):
         send_filter(reply_token, user_detailed_filter[user_id]) # 發送篩選範圍的選項
     elif user_id in user_detailed_filter: # 接著根據篩選範圍的文字進行篩選
         process_filter(reply_token, locations[user_id], user_keywords[user_id], user_detailed_filter[user_id], msg, price_criteria)
-    elif '地震！' in msg:
+    elif '地震' in msg:
         reply = earth_quake()
         text_message = TextSendMessage(text=reply[0])  # 建立文字訊息
         line_bot_api.reply_message(event.reply_token, text_message)  # 回覆地震資訊的文字訊息
