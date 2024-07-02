@@ -68,13 +68,13 @@ def handle_message(event):
         food = choose_food(msg)
         user_keywords[user_id] = food
         send_quick_reply(reply_token, f"建議您嘗試：{food}", ["返回食物類別設定", "不接受", "接受"])
-    elif msg == "接受" and (user_id in user_food_choice):
+    elif (msg == "接受") and (user_id in user_food_choice):
         del user_food_choice[user_id]
         user_filter_sequence[user_id] = [] # 初始化篩選標準順序
         user_detailed_filter[user_id] = {"sequence": [], "step": 0, "criteria": {}} # 初始化詳細篩選標準
         send_quick_reply(reply_token, "關鍵字確認完成，請選擇第一個篩選標準：", filter_options) # 發送篩選標準的選項
 
-    elif msg == "不接受" and (user_id in user_food_choice):
+    elif (msg == "不接受") and (user_id in user_food_choice):
         food = choose_food(user_food_choice[user_id])
         user_keywords[user_id] = food
         send_quick_reply(reply_token, f"再試一次，建議您嘗試：{food}", ["返回食物類別設定", "不接受", "接受"])
@@ -113,7 +113,7 @@ def handle_message(event):
         else:
             getRestaurants(reply_token, locations[user_id], user_keywords[user_id], user_filter_sequence[user_id], price_criteria)
     # 這邊續必須注意順序
-    elif msg == "結束篩選" and (user_id in user_filter_sequence): # 當用戶選擇結束篩選時，進行篩選並輸出結果
+    elif (msg == "結束篩選") and (user_id in user_filter_sequence): # 當用戶選擇結束篩選時，進行篩選並輸出結果
         getRestaurants(reply_token, locations[user_id], user_keywords[user_id], user_filter_sequence[user_id], price_criteria)
     elif msg == "滿意":
         line_bot_api.reply_message(reply_token, TextSendMessage(text="祝用餐愉快囉！😋"))
