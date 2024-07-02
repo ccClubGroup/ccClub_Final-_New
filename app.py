@@ -119,12 +119,13 @@ def handle_message(event):
         line_bot_api.reply_message(reply_token, TextSendMessage(text="祝用餐愉快囉！😋"))
         del user_filter_sequence[user_id]
         del user_detailed_filter[user_id]
+        filter_options = ["價格", "距離", "評論數", "星數"] # 重置可供選擇的篩選標準
     elif msg == "不滿意": # 最後會詢問是否滿意，將根據用戶所選擇的篩選標準提供更詳細的範圍選項，直到用戶滿意為止
         user_detailed_filter[user_id]["step"] = 0  # 重置步驟數
         send_filter(reply_token, user_detailed_filter[user_id]) # 發送篩選範圍的選項
     elif user_id in user_detailed_filter: # 接著根據篩選範圍的文字進行篩選
         process_filter(reply_token, locations[user_id], user_keywords[user_id], user_detailed_filter[user_id], msg, price_criteria)
-    elif '地震' in msg:
+    elif '地震！' in msg:
         reply = earth_quake()
         text_message = TextSendMessage(text=reply[0])  # 建立文字訊息
         line_bot_api.reply_message(event.reply_token, text_message)  # 回覆地震資訊的文字訊息
