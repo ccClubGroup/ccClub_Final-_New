@@ -135,7 +135,7 @@ def handle_message(event):
         line_bot_api.reply_message(event.reply_token, text_message)  # 回覆地震資訊的文字訊息
         line_bot_api.push_message(event.source.user_id, ImageSendMessage(original_content_url=reply[1], preview_image_url=reply[1]))  # 地震資訊的圖片訊息
     else:
-        message = "嗨～記得先點選下方選單的定位唷！"
+        message = "要記得先點選下方選單的定位唷！"
         line_bot_api.reply_message(event.reply_token, TextSendMessage(text=message))
 
 # 處理位置訊息

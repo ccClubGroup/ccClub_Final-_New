@@ -119,8 +119,7 @@ def sort_restaurants(restaurants, criteria, user_location, price_criteria, basic
         criteria = criteria["criteria"]
        # 設定篩選標準
         if "distance" in criteria:
-            distance_range = criteria.get("distance", "0~10000公尺")
-            min_distance, max_distance = map(int, distance_range.replace("公尺", "").split('~'))
+            min_distance, max_distance = criteria["distance"]
         if "rating" in criteria:
             min_rating, max_rating = criteria["rating"]
         if "reviews" in criteria:
@@ -150,11 +149,11 @@ def send_filter(reply_token, user_detailed_filter):
     if step < len(sequence): # 如果當前步驟小於篩選序列長度
         criteria = sequence[step]
         if criteria == "距離":
-            send_quick_reply(reply_token, "請選擇距離範圍：", ["0~600公尺", "601~1800公尺", "1801~3000公尺", "3001~6000公尺", "6001~10000公尺"])
+            send_quick_reply(reply_token, "請選擇距離範圍：", ["600公尺以內", "1800公尺以內", "3000公尺以內", "6000公尺以內"])
         elif criteria == "星數":
-            send_quick_reply(reply_token, "請選擇星數範圍：", ["3.0~3.5", "3.6~4.0", "4.1~4.5", "4.6~5.0"])
+            send_quick_reply(reply_token, "請選擇星數範圍：", ["3.0以上", "3.5以上", "4.0以上", "4.5以上"])
         elif criteria == "評論數":
-            send_quick_reply(reply_token, "請選擇評論數範圍：", ["0~150條", "151~300條", "301~450條", "451~600條", "600條以上"])
+            send_quick_reply(reply_token, "請選擇評論數範圍：", ["50條以上", "150條以上", "300條以上", "450條以上", "600條以上"])
         elif criteria == "價格":
             send_quick_reply(reply_token, "請選擇價格範圍：", ["$", "$$", "$$$", "$$$$"])
 
@@ -166,16 +165,36 @@ def process_filter(reply_token, user_location, keyword, user_detailed_filter, ms
     if step < len(sequence):
         criteria = sequence[step]
         if criteria == "距離":
+            if msg == "600公尺以內":
+                user_detailed_filter["criteria"]["distance"] = (0, 600)
+            elif msg == "1800公尺以內":
+                user_detailed_filter["criteria"]["distance"] = (0, 1800)
+            elif msg == "3000公尺以內":
+                user_detailed_filter["criteria"]["distance"] = (0, 3000)
+            elif msg == "6000公尺以內":
+                user_detailed_filter["criteria"]["distance"] = (0, 6000)
+
             user_detailed_filter["criteria"]["distance"] = msg
         elif criteria == "星數":
-            min_rating, max_rating = map(float, msg.split('~'))
-            user_detailed_filter["criteria"]["rating"] = (min_rating, max_rating)
+            if msg == "3.0以上":
+                user_detailed_filter["criteria"]["rating"] = (3.0, 5.0)
+            elif msg == "3.5以上":
+                user_detailed_filter["criteria"]["rating"] = (3.5, 5.0)
+            elif msg == "4.0以上":
+                user_detailed_filter["criteria"]["rating"] = (4.0, 5.0)
+            elif msg == "4.5以上":
+                user_detailed_filter["criteria"]["rating"] = (4.5, 5.0)
         elif criteria == "評論數":
             if msg == "600條以上":
                 user_detailed_filter["criteria"]["reviews"] = (600, float('inf'))
-            else:
-                min_reviews, max_reviews = map(int, msg.replace("條", "").split('~'))
-                user_detailed_filter["criteria"]["reviews"] = (min_reviews, max_reviews)
+            elif msg == "450條以上":
+                user_detailed_filter["criteria"]["reviews"] = (450, float('inf'))
+            elif msg == "300條以上":
+                user_detailed_filter["criteria"]["reviews"] = (300, float('inf'))
+            elif msg == "150條以上":
+                user_detailed_filter["criteria"]["reviews"] = (150, float('inf'))
+            elif msg == "50條以上":
+                user_detailed_filter["criteria"]["reviews"] = (50, float('inf'))
         elif criteria == "價格":
             price_dict = {"$":'1', "$$":'2', "$$$":'3', "$$$$":'4'}
             price_criteria = price_dict[msg]
