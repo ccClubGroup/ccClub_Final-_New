@@ -173,8 +173,6 @@ def process_filter(reply_token, user_location, keyword, user_detailed_filter, ms
                 user_detailed_filter["criteria"]["distance"] = (0, 3000)
             elif msg == "6000公尺以內":
                 user_detailed_filter["criteria"]["distance"] = (0, 6000)
-
-            user_detailed_filter["criteria"]["distance"] = msg
         elif criteria == "星數":
             if msg == "3.0以上":
                 user_detailed_filter["criteria"]["rating"] = (3.0, 5.0)
