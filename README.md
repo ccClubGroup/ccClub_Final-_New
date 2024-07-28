@@ -5,3 +5,6 @@
 若用戶有選擇困難，我們也會提供選項的建議，解決用戶用餐前所有的煩惱。
 
 Line ID: @653bruou
+
+demo 影片：
+https://www.youtube.com/watch?v=q-Orgq5CBso
